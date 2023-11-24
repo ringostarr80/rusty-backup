@@ -1,0 +1,49 @@
+<?xml version="1.0" encoding="utf-8"?>
+<backup-configuration working-directory="tmp">
+	<databases>
+		<database kind="mysql" id="mysql" username="root" password="[password]"/>
+		<database kind="mongodb" id="mongodb"/>
+		<database kind="postgresql" id="postgresql" username="postgres" password="[password]"/>
+	</databases>
+	<destinations>
+		<destination kind="directory" id="local_directory" path="/home/user/backup"/>
+		<destination kind="s3" id="s3" bucket="<bucket-name>" region="eu-central-1"/>
+	</destinations>
+	<encryptions>
+		<encryption id="default" program="openssl">
+			<parameters>
+				<parameter value="enc"/>
+				<parameter value="-aes-256-cbc"/>
+				<parameter value="-pbkdf2"/>
+				<parameter value="-in"/>
+				<parameter value="{filename}"/>
+				<parameter value="-out"/>
+				<parameter value="{filename}.enc"/>
+				<parameter value="-k"/>
+				<parameter value="[password]"/>
+			</parameters>
+		</encryption>
+	</encryptions>
+	<archives>
+		<archive name="{date:year}-{date:month}-{date:day}_mysql" compression="tar.bz2" encryption="default" destination="local_directory">
+			<databases db-id="mysql">
+				<database name="test" name-is-regex="false"/>
+			</databases>
+		</archive>
+		<archive name="{date:year}-{date:month}-{date:day}_postgresql" compression="tar.bz2" encryption="default" destination="local_directory">
+			<databases db-id="postgresql">
+				<database name="test"/>
+			</databases>
+		</archive>
+		<archive name="{date:year}-{date:month}-{date:day}_mongodb" compression="tar.bz2" encryption="default" destination="local_directory">
+			<databases db-id="mongodb">
+				<database name="*"/>
+			</databases>
+		</archive>
+		<archive name="{date:year}-{date:month}-{date:day}_www" compression="tar.bz2" encryption="default" destination="local_directory">
+			<directories>
+				<directory name="/var/www"/>
+			</directories>
+		</archive>
+	</archives>
+</backup-configuration>

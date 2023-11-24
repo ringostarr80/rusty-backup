@@ -1,0 +1,27 @@
+[package]
+name = "rusty-backup"
+version = "0.1.0"
+authors = ["Ringo Leese <webmaster@ringoleese.de>"]
+edition = "2021"
+
+[dependencies]
+bytes = "1.5"
+bzip2 = "0.4"
+chrono = "0.4"
+clap = { version = "4.4", features = ["cargo"] }
+dirs = "5.0"
+futures = "0.3"
+futures-fs = "0.0.5"
+lazy_static = "1.4"
+log = "0.4"
+log4rs = "1.2"
+nix = { version = "0.27", features = ["user"] }
+parse_duration = "2.1"
+regex = "1.10"
+rusoto_core = "0.48"
+rusoto_s3 = "0.48"
+tar = "0.4"
+termion = "2.0"
+tokio = { version = "1.34", features = ["full"] }
+walkdir = "2.4"
+xml-rs = "0.8"
