@@ -22,6 +22,6 @@ rusoto_core = "0.48"
 rusoto_s3 = "0.48"
 tar = "0.4"
 termion = "3.0"
-tokio = { version = "1.35", features = ["full"] }
+tokio = { version = "1.36", features = ["full"] }
 walkdir = "2.4"
 xml-rs = "0.8"
