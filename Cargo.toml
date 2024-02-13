@@ -8,7 +8,7 @@ edition = "2021"
 bytes = "1.5"
 bzip2 = "0.4"
 chrono = "0.4"
-clap = { version = "4.4", features = ["cargo"] }
+clap = { version = "4.5", features = ["cargo"] }
 dirs = "5.0"
 futures = "0.3"
 futures-fs = "0.0.5"
