@@ -154,7 +154,7 @@ impl Configuration {
                                                         }
                                                     },
                                                     "max-archive-age" => {
-                                                        match parse_duration::parse(
+                                                        match parse_duration0::parse(
                                                             attr.value.as_str(),
                                                         ) {
                                                             Ok(duration) => {
