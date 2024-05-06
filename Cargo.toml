@@ -21,7 +21,7 @@ regex = "1.10"
 rusoto_core = "0.48"
 rusoto_s3 = "0.48"
 tar = "0.4"
-termion = "3.0"
+termion = "4.0"
 tokio = { version = "1.37", features = ["full"] }
 walkdir = "2.5"
 xml-rs = "0.8"
