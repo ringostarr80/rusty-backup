@@ -187,7 +187,7 @@ fn get_arguments() -> Arguments {
     mode = matches.get_one("mode").unwrap_or(&mode).to_string();
 
     Arguments {
-        backup_settings_file: backup_settings_file,
-        mode: mode,
+        backup_settings_file,
+        mode,
     }
 }
