@@ -20,6 +20,7 @@ parse_duration0 = "3.0"
 regex = "1.11"
 rusoto_core = "0.48"
 rusoto_s3 = "0.48"
+ssh2 = "0.9"
 tar = "0.4"
 termion = "4.0"
 tokio = { version = "1.43", features = ["full"] }

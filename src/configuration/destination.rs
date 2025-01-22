@@ -21,10 +21,13 @@ use crate::helper::ProgressStats;
 pub struct Destination {
     pub kind: Kind,
     pub id: String,
+    pub max_archive_age: Option<Duration>,
+    pub password: String,
     pub path: String,
     pub s3_bucket: String,
     pub s3_region: Region,
-    pub max_archive_age: Option<Duration>,
+    pub server: String,
+    pub username: String,
 }
 
 impl Destination {
@@ -32,10 +35,13 @@ impl Destination {
         Destination {
             kind: Kind::None,
             id: String::new(),
+            max_archive_age: None,
+            password: String::new(),
             path: String::new(),
             s3_bucket: String::new(),
             s3_region: Region::EuCentral1,
-            max_archive_age: None,
+            server: String::new(),
+            username: String::new(),
         }
     }
 
@@ -44,6 +50,7 @@ impl Destination {
             Kind::Directory => Ok(None),
             Kind::None => Ok(None),
             Kind::S3 => self.download_from_s3_to_tmp(archive).await,
+            Kind::SSH => todo!(),
         }
     }
 
@@ -289,4 +296,5 @@ pub enum Kind {
     Directory,
     None,
     S3,
+    SSH,
 }
