@@ -1,16 +1,19 @@
 use std::{
     fs::File,
-    io::Write,
+    io::{Read, Write},
+    net::TcpStream,
     ops::Sub,
+    path::Path,
     sync::{Arc, Mutex},
     thread,
     time::Duration,
 };
 
-use chrono::NaiveDateTime;
+use chrono::{DateTime, NaiveDateTime};
 use log::{info, warn};
 use rusoto_core::{Region, RusotoError};
 use rusoto_s3::{GetObjectRequest, ListObjectsV2Error, ListObjectsV2Request, S3Client, S3};
+use ssh2::Session;
 use tokio::io::AsyncReadExt;
 
 use crate::configuration::Archive;
@@ -50,7 +53,7 @@ impl Destination {
             Kind::Directory => Ok(None),
             Kind::None => Ok(None),
             Kind::S3 => self.download_from_s3_to_tmp(archive).await,
-            Kind::SSH => todo!(),
+            Kind::SSH => self.download_from_ssh_to_tmp(archive).await,
         }
     }
 
@@ -274,6 +277,93 @@ impl Destination {
         }
 
         Ok(Some(archive_name))
+    }
+
+    async fn download_from_ssh_to_tmp(&self, archive: &Archive) -> Result<Option<String>, String> {
+        let addr = format!("{}:22", archive.destination.server);
+        let tcp = TcpStream::connect(addr).unwrap();
+        let mut ssh2_session = Session::new().unwrap();
+        ssh2_session.set_tcp_stream(tcp);
+        ssh2_session.handshake().unwrap();
+        ssh2_session.userauth_password(&archive.destination.username, &archive.destination.password).unwrap();
+
+        let sftp = ssh2_session.sftp().unwrap();
+        let paths = sftp.readdir(Path::new("")).unwrap();
+
+        let mut last_known_key_opt: Option<String> = None;
+        let mut last_known_datetime_opt: Option<NaiveDateTime> = None;
+
+        for path in paths {
+            let key = format!("{}", path.0.display());
+
+            let current_datetime_opt = match path.1.mtime {
+                Some(modified) => {
+                    match DateTime::from_timestamp(modified as i64, 0) {
+                        Some(date) => Some(date.naive_utc()),
+                        None => None,
+                    }
+                }
+                None => None,
+            };
+
+            match last_known_datetime_opt {
+                Some(last_known_datetime) => match current_datetime_opt {
+                    Some(current_datetime) => {
+                        let datetime_diff = last_known_datetime.sub(current_datetime);
+                        if datetime_diff.num_seconds() < 0 {
+                            last_known_datetime_opt = Some(current_datetime);
+                            last_known_key_opt = Some(key);
+                        }
+                    }
+                    None => {}
+                },
+                None => match current_datetime_opt {
+                    Some(current_datetime) => {
+                        last_known_datetime_opt = Some(current_datetime);
+                        last_known_key_opt = Some(key);
+                    }
+                    None => {}
+                },
+            }
+        }
+
+        let key = match last_known_key_opt {
+            Some(key) => key,
+            None => {
+                warn!("no SSH file found.");
+                return Ok(None);
+            }
+        };
+
+        info!("found latest key: {:?}", key);
+
+        print!("downloading... ");
+
+        let mut sftp_file = sftp.open(Path::new(&key)).unwrap();
+        let archive_filename = format!("{}", key);
+        let mut f = File::create(&archive_filename).map_err(Self::map_error)?;
+        let mut buf = [0; 32 * 1024];
+        let mut read_bytes = sftp_file.read(&mut buf).unwrap();
+        while read_bytes > 0 {
+            f.write_all(&buf[..read_bytes]).map_err(Self::map_error)?;
+            read_bytes = sftp_file.read(&mut buf).unwrap();
+        }
+
+        println!();
+
+        let mut archive_name = archive_filename.clone();
+        if let Some(encryption) = &archive.encryption {
+            let enc_ext = encryption.to_extension_string();
+            if archive_name.ends_with(&enc_ext) {
+                archive_name = archive_name[..archive_name.len() - enc_ext.len()].to_string();
+            }
+        }
+        let comp_ext = archive.compression.to_extension_string();
+        if archive_name.ends_with(&comp_ext) {
+            archive_name = archive_name[..archive_name.len() - comp_ext.len()].to_string();
+        }
+
+        return Ok(Some(archive_name));
     }
 
     fn map_error(err: std::io::Error) -> String {
