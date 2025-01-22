@@ -2,6 +2,9 @@ use std::env;
 use std::fs;
 use std::fs::File;
 use std::io::{ErrorKind, Read, Write};
+use std::net::TcpStream;
+use std::os::unix::fs::MetadataExt;
+use std::path::Path;
 use std::process::Stdio;
 
 use bytes::Bytes;
@@ -12,6 +15,7 @@ use futures_fs::FsPool;
 use log::{error, info};
 use regex::Regex;
 use rusoto_s3::{PutObjectRequest, S3Client, StreamingBody, S3};
+use ssh2::Session;
 use tar::Builder;
 
 use crate::configuration::{
@@ -180,6 +184,41 @@ impl Backup {
                             }
                             Err(err) => {
                                 error!("fs::metadata({}) err: {}", file, err);
+                            }
+                        }
+                    }
+                }
+                DestinationKind::SSH => {
+                    let addr = format!("{}:22", archive.destination.server);
+                    let tcp = TcpStream::connect(addr).unwrap();
+                    let mut ssh2_session = Session::new().unwrap();
+                    ssh2_session.set_tcp_stream(tcp);
+                    ssh2_session.handshake().unwrap();
+                    ssh2_session.userauth_password(&archive.destination.username, &archive.destination.password).unwrap();
+
+                    for filename in files_to_move_to_destination {
+                        match fs::metadata(&filename) {
+                            Ok(meta) => {
+                                info!("uploading file: {}", &filename);
+
+                                let mut remote_file = ssh2_session.scp_send(Path::new("test"), 0o644, meta.size(), None).unwrap();
+
+                                let mut file = fs::File::open(&filename).unwrap();
+                                // more than 32KB seems to be too much for the buffer, so that not the complete file is transferred.
+                                let mut buf = [0; 32 * 1_024]; // 32KB
+                                let mut read_bytes = file.read(&mut buf).unwrap();
+                                while read_bytes > 0 {
+                                    remote_file.write(&buf).unwrap();
+                                    read_bytes = file.read(&mut buf).unwrap();
+                                }
+
+                                remote_file.send_eof().unwrap();
+                                remote_file.wait_eof().unwrap();
+                                remote_file.close().unwrap();
+                                remote_file.wait_close().unwrap();
+                            }
+                            Err(err) => {
+                                error!("fs::metadata({}) err: {}", filename, err);
                             }
                         }
                     }

@@ -149,6 +149,9 @@ impl Configuration {
                                                         "s3" => {
                                                             destination.kind = DestinationKind::S3;
                                                         }
+                                                        "ssh" => {
+                                                            destination.kind = DestinationKind::SSH;
+                                                        }
                                                         kind => {
                                                             return Err(format!("invalid destination kind value '{}'.", kind));
                                                         }
@@ -163,6 +166,9 @@ impl Configuration {
                                                             }
                                                             Err(_) => {}
                                                         }
+                                                    }
+                                                    "password" => {
+                                                        destination.password = attr.value;
                                                     }
                                                     "path" => {
                                                         destination.path = attr.value;
@@ -239,6 +245,12 @@ impl Configuration {
                                                             return Err(format!("invalid destination region value '{}'.", region));
                                                         }
                                                     },
+                                                    "server" => {
+                                                        destination.server = attr.value;
+                                                    }
+                                                    "username" => {
+                                                        destination.username = attr.value;
+                                                    }
                                                     _ => {}
                                                 }
                                             }
