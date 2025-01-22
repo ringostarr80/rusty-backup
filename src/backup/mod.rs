@@ -189,6 +189,8 @@ impl Backup {
                     }
                 }
                 DestinationKind::SSH => {
+                    let fs = FsPool::default();
+
                     let addr = format!("{}:22", archive.destination.server);
                     let tcp = TcpStream::connect(addr).unwrap();
                     let mut ssh2_session = Session::new().unwrap();
@@ -204,8 +206,8 @@ impl Backup {
                                 let mut remote_file = ssh2_session.scp_send(Path::new(&filename), 0o644, meta.size(), None).unwrap();
 
                                 let mut file = fs::File::open(&filename).unwrap();
-                                // more than 32KB seems to be too much for the buffer, so that not the complete file is transferred.
-                                let mut buf = [0; 32 * 1_024]; // 32KB
+                                // more than 16KB seems to be too much for the buffer, so that file is not correctly transferred.
+                                let mut buf = [0; 16 * 1_024]; // 16KB
                                 let mut read_bytes = file.read(&mut buf).unwrap();
                                 while read_bytes > 0 {
                                     remote_file.write(&buf).unwrap();
@@ -216,6 +218,9 @@ impl Backup {
                                 remote_file.wait_eof().unwrap();
                                 remote_file.close().unwrap();
                                 remote_file.wait_close().unwrap();
+
+                                info!("file upload ok: {}", filename);
+                                fs.delete(filename);
                             }
                             Err(err) => {
                                 error!("fs::metadata({}) err: {}", filename, err);

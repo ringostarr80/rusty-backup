@@ -125,7 +125,7 @@ impl Restore {
                         Self::build_possible_archive_names(archive.name.clone());
                     Self::get_newest_archive_name_in_directory(possible_archive_names, &archive)
                 }
-                DestinationKind::SSH => todo!(),
+                DestinationKind::SSH => archive.destination.download_to_tmp(&archive).await?,
                 DestinationKind::None => continue,
             };
 
