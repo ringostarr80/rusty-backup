@@ -201,7 +201,7 @@ impl Backup {
                             Ok(meta) => {
                                 info!("uploading file: {}", &filename);
 
-                                let mut remote_file = ssh2_session.scp_send(Path::new("test"), 0o644, meta.size(), None).unwrap();
+                                let mut remote_file = ssh2_session.scp_send(Path::new(&filename), 0o644, meta.size(), None).unwrap();
 
                                 let mut file = fs::File::open(&filename).unwrap();
                                 // more than 32KB seems to be too much for the buffer, so that not the complete file is transferred.
