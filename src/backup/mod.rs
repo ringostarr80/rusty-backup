@@ -206,8 +206,7 @@ impl Backup {
                                 let mut remote_file = ssh2_session.scp_send(Path::new(&filename), 0o644, meta.size(), None).unwrap();
 
                                 let mut file = fs::File::open(&filename).unwrap();
-                                // more than 16KB seems to be too much for the buffer, so that file is not correctly transferred.
-                                let mut buf = [0; 16 * 1_024]; // 16KB
+                                let mut buf = [0; 1_024];
                                 let mut read_bytes = file.read(&mut buf).unwrap();
                                 while read_bytes > 0 {
                                     remote_file.write(&buf).unwrap();

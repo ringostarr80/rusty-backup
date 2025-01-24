@@ -280,6 +280,18 @@ impl Destination {
     }
 
     async fn download_from_ssh_to_tmp(&self, archive: &Archive) -> Result<Option<String>, String> {
+        let prefix_opt = match archive.name.find("{") {
+            Some(index) => {
+                if index > 0 {
+                    let archive_name = archive.name.as_str();
+                    Some(String::from(&archive_name[..index]))
+                } else {
+                    None
+                }
+            }
+            None => None,
+        };
+
         let addr = format!("{}:22", archive.destination.server);
         let tcp = TcpStream::connect(addr).unwrap();
         let mut ssh2_session = Session::new().unwrap();
@@ -295,6 +307,11 @@ impl Destination {
 
         for path in paths {
             let key = format!("{}", path.0.display());
+            if let Some(prefix) = &prefix_opt {
+                if !key.starts_with(prefix) {
+                    continue;
+                }
+            }
 
             let current_datetime_opt = match path.1.mtime {
                 Some(modified) => {
