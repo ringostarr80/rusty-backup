@@ -210,7 +210,7 @@ impl Backup {
 
                             info!("file upload ok: {}", filename);
                         }
-                        break;
+                        continue;
                     }
                     ssh2_session.userauth_password(&archive.destination.username, &archive.destination.password).unwrap();
 
