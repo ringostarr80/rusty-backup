@@ -209,7 +209,7 @@ impl Backup {
                                 let mut buf = [0; 1_024];
                                 let mut read_bytes = file.read(&mut buf).unwrap();
                                 while read_bytes > 0 {
-                                    remote_file.write(&buf).unwrap();
+                                    remote_file.write(&buf[..read_bytes]).unwrap();
                                     read_bytes = file.read(&mut buf).unwrap();
                                 }
 
