@@ -195,7 +195,23 @@ impl Backup {
                     let tcp = TcpStream::connect(addr).unwrap();
                     let mut ssh2_session = Session::new().unwrap();
                     ssh2_session.set_tcp_stream(tcp);
-                    ssh2_session.handshake().unwrap();
+                    if let Err(e) = ssh2_session.handshake() {
+                        error!("ssh2_session.handshake() err: {:?}", e);
+                        info!("fallback to scp");
+
+                        for filename in files_to_move_to_destination {
+                            let dest_address = format!("{}@{}:/", archive.destination.username, archive.destination.server);
+                            let mut scp_command = std::process::Command::new("sshpass");
+                            scp_command.arg("-p").arg(&archive.destination.password);
+                            scp_command.arg("scp");
+                            scp_command.arg(&filename);
+                            scp_command.arg(&dest_address);
+                            scp_command.spawn().unwrap().wait().unwrap();
+
+                            info!("file upload ok: {}", filename);
+                        }
+                        break;
+                    }
                     ssh2_session.userauth_password(&archive.destination.username, &archive.destination.password).unwrap();
 
                     for filename in files_to_move_to_destination {
