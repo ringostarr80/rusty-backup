@@ -213,6 +213,14 @@ impl Configuration {
                                                             destination.s3_region =
                                                                 Region::EuCentral1;
                                                         }
+                                                        "storj-eu1" => {
+                                                            destination.s3_region = Region::Custom {
+                                                                name: "StorjEu1".to_string(),
+                                                                endpoint:
+                                                                    "https://gateway.storjshare.io"
+                                                                        .to_string(),
+                                                            }
+                                                        }
                                                         "eu-west-1" => {
                                                             destination.s3_region = Region::EuWest1;
                                                         }

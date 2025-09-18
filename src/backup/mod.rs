@@ -200,7 +200,10 @@ impl Backup {
                         info!("fallback to scp");
 
                         for filename in files_to_move_to_destination {
-                            let dest_address = format!("{}@{}:/", archive.destination.username, archive.destination.server);
+                            let dest_address = format!(
+                                "{}@{}:/",
+                                archive.destination.username, archive.destination.server
+                            );
                             let mut scp_command = std::process::Command::new("sshpass");
                             scp_command.arg("-p").arg(&archive.destination.password);
                             scp_command.arg("scp");
@@ -212,14 +215,21 @@ impl Backup {
                         }
                         continue;
                     }
-                    ssh2_session.userauth_password(&archive.destination.username, &archive.destination.password).unwrap();
+                    ssh2_session
+                        .userauth_password(
+                            &archive.destination.username,
+                            &archive.destination.password,
+                        )
+                        .unwrap();
 
                     for filename in files_to_move_to_destination {
                         match fs::metadata(&filename) {
                             Ok(meta) => {
                                 info!("uploading file: {}", &filename);
 
-                                let mut remote_file = ssh2_session.scp_send(Path::new(&filename), 0o644, meta.size(), None).unwrap();
+                                let mut remote_file = ssh2_session
+                                    .scp_send(Path::new(&filename), 0o644, meta.size(), None)
+                                    .unwrap();
 
                                 let mut file = fs::File::open(&filename).unwrap();
                                 let mut buf = [0; 1_024];
