@@ -17,7 +17,7 @@ log = "0.4"
 log4rs = "1.3"
 nix = { version = "0.30", features = ["user"] }
 parse_duration0 = "3.0"
-regex = "1.11"
+regex = "1.12"
 rusoto_core = "0.48"
 rusoto_s3 = "0.48"
 ssh2 = "0.9"
