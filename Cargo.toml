@@ -5,7 +5,7 @@ authors = ["Ringo Leese <webmaster@ringoleese.de>"]
 edition = "2021"
 
 [dependencies]
-bytes = "1.10"
+bytes = "1.11"
 bzip2 = "0.6"
 chrono = "0.4"
 clap = { version = "4.5", features = ["cargo"] }
