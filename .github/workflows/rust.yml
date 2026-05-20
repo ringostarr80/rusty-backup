@@ -28,6 +28,6 @@ jobs:
       with:
         persist-credentials: false
     - name: Build
-      run: cargo build --verbose
+      run: cargo build --verbose --locked
     - name: Run tests
-      run: cargo test --verbose
+      run: cargo test --verbose --locked
