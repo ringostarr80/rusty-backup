@@ -144,9 +144,9 @@ dependencies = [
 
 [[package]]
 name = "bytes"
-version = "1.11.1"
+version = "1.12.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
-checksum = "1e748733b7cbc798e1434b6ac524f0c1ff2ab456fe201501e6497c8417a4fc33"
+checksum = "8ae3f5d315924270530207e2a68396c3cc547f6dca3fbdca317cfb1a51edb593"
 
 [[package]]
 name = "bzip2"
@@ -563,7 +563,7 @@ version = "0.3.27"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "0beca50380b1fc32983fc1cb4587bfa4bb9e78fc259aad4a0032d2080309222d"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "fnv",
  "futures-core",
  "futures-sink",
@@ -610,7 +610,7 @@ version = "0.2.12"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "601cbb57e577e2f5ef5be8e7b83f0f63994f25aa94d673e54a92d5c516d101f1"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "fnv",
  "itoa",
 ]
@@ -621,7 +621,7 @@ version = "0.4.6"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7ceab25649e9960c0311ea418d17bee82c0dcec1bd053b5f9a66e265a693bed2"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "http",
  "pin-project-lite",
 ]
@@ -650,7 +650,7 @@ version = "0.14.32"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "41dfc780fdec9373c01bae43289ea34c972e40ee3c9f6b3c8801a35f35586ce7"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "futures-channel",
  "futures-core",
  "futures-util",
@@ -674,7 +674,7 @@ version = "0.5.0"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "d6183ddfa99b85da61a140bea0efc93fdf56ceaa041b37d553518030827f9905"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "hyper",
  "native-tls",
  "tokio",
@@ -1206,7 +1206,7 @@ checksum = "1db30db44ea73551326269adcf7a2169428a054f14faf9e1768f2163494f2fa2"
 dependencies = [
  "async-trait",
  "base64",
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "crc32fast",
  "futures 0.3.32",
  "http",
@@ -1248,7 +1248,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "7aae4677183411f6b0b412d66194ef5403293917d66e70ab118f07cc24c5b14d"
 dependencies = [
  "async-trait",
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "futures 0.3.32",
  "rusoto_core",
  "xml-rs 0.8.27",
@@ -1261,7 +1261,7 @@ source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "a5ae95491c8b4847931e291b151127eccd6ff8ca13f33603eb3d0035ecb05272"
 dependencies = [
  "base64",
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "chrono",
  "digest",
  "futures 0.3.32",
@@ -1312,7 +1312,7 @@ checksum = "b39cdef0fa800fc44525c84ccb54a029961a8215f9619753635a9c0d2538d46d"
 name = "rusty-backup"
 version = "0.1.0"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "bzip2",
  "chrono",
  "clap",
@@ -1645,7 +1645,7 @@ version = "1.52.3"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "8fc7f01b389ac15039e4dc9531aa973a135d7a4135281b12d7c1bc79fd57fffe"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "libc",
  "mio",
  "parking_lot",
@@ -1683,7 +1683,7 @@ version = "0.7.16"
 source = "registry+https://github.com/rust-lang/crates.io-index"
 checksum = "14307c986784f72ef81c89db7d9e28d6ac26d16213b109ea501696195e6e3ce5"
 dependencies = [
- "bytes 1.11.1",
+ "bytes 1.12.0",
  "futures-core",
  "futures-sink",
  "pin-project-lite",
