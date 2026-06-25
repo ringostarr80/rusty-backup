@@ -131,6 +131,8 @@ impl Configuration {
                                         "destinations" => {}
                                         "destination" => {
                                             destination = Destination::new();
+                                            let mut s3_endpoint: Option<String> = None;
+                                            let mut s3_region_name: Option<String> = None;
 
                                             for attr in attributes {
                                                 match attr.name.to_string().as_str() {
@@ -176,83 +178,12 @@ impl Configuration {
                                                     "id" => {
                                                         destination.id = attr.value;
                                                     }
-                                                    "region" => match attr.value.as_str() {
-                                                        "ap-northeast-1" => {
-                                                            destination.s3_region =
-                                                                Region::ApNortheast1;
-                                                        }
-                                                        "ap-northeast-2" => {
-                                                            destination.s3_region =
-                                                                Region::ApNortheast2;
-                                                        }
-                                                        "ap-south-1" => {
-                                                            destination.s3_region =
-                                                                Region::ApSouth1;
-                                                        }
-                                                        "ap-southeast-1" => {
-                                                            destination.s3_region =
-                                                                Region::ApSoutheast1;
-                                                        }
-                                                        "ap-southeast-2" => {
-                                                            destination.s3_region =
-                                                                Region::ApSoutheast2;
-                                                        }
-                                                        "ca-central-1" => {
-                                                            destination.s3_region =
-                                                                Region::CaCentral1;
-                                                        }
-                                                        "cn-north-1" => {
-                                                            destination.s3_region =
-                                                                Region::CnNorth1;
-                                                        }
-                                                        "cn-northwest-1" => {
-                                                            destination.s3_region =
-                                                                Region::CnNorthwest1;
-                                                        }
-                                                        "eu-central-1" => {
-                                                            destination.s3_region =
-                                                                Region::EuCentral1;
-                                                        }
-                                                        "storj-eu1" => {
-                                                            destination.s3_region = Region::Custom {
-                                                                name: "StorjEu1".to_string(),
-                                                                endpoint:
-                                                                    "https://gateway.storjshare.io"
-                                                                        .to_string(),
-                                                            }
-                                                        }
-                                                        "eu-west-1" => {
-                                                            destination.s3_region = Region::EuWest1;
-                                                        }
-                                                        "eu-west-2" => {
-                                                            destination.s3_region = Region::EuWest2;
-                                                        }
-                                                        "eu-west-3" => {
-                                                            destination.s3_region = Region::EuWest3;
-                                                        }
-                                                        "sa-east-1" => {
-                                                            destination.s3_region = Region::SaEast1;
-                                                        }
-                                                        "us-east-1" => {
-                                                            destination.s3_region = Region::UsEast1;
-                                                        }
-                                                        "us-east-2" => {
-                                                            destination.s3_region = Region::UsEast2;
-                                                        }
-                                                        "us-gov-west-1" => {
-                                                            destination.s3_region =
-                                                                Region::UsGovWest1;
-                                                        }
-                                                        "us-west-1" => {
-                                                            destination.s3_region = Region::UsWest1;
-                                                        }
-                                                        "us-west-2" => {
-                                                            destination.s3_region = Region::UsWest2;
-                                                        }
-                                                        region => {
-                                                            return Err(format!("invalid destination region value '{}'.", region));
-                                                        }
-                                                    },
+                                                    "endpoint" => {
+                                                        s3_endpoint = Some(attr.value);
+                                                    }
+                                                    "region" => {
+                                                        s3_region_name = Some(attr.value);
+                                                    }
                                                     "server" => {
                                                         destination.server = attr.value;
                                                     }
@@ -261,6 +192,52 @@ impl Configuration {
                                                     }
                                                     _ => {}
                                                 }
+                                            }
+
+                                            // Resolve the S3 region after the attribute loop so
+                                            // that `region` and `endpoint` may appear in any order.
+                                            // A custom `endpoint` (e.g. Infomaniak, MinIO, ...)
+                                            // always wins and builds a Region::Custom, using the
+                                            // given `region` as signing-region name (default:
+                                            // us-east-1, as recommended for S3-compatible providers).
+                                            if let Some(endpoint) = s3_endpoint {
+                                                let name = s3_region_name
+                                                    .unwrap_or_else(|| String::from("us-east-1"));
+                                                destination.s3_region =
+                                                    Region::Custom { name, endpoint };
+                                            } else if let Some(region_name) = s3_region_name {
+                                                destination.s3_region = match region_name.as_str() {
+                                                    "ap-northeast-1" => Region::ApNortheast1,
+                                                    "ap-northeast-2" => Region::ApNortheast2,
+                                                    "ap-south-1" => Region::ApSouth1,
+                                                    "ap-southeast-1" => Region::ApSoutheast1,
+                                                    "ap-southeast-2" => Region::ApSoutheast2,
+                                                    "ca-central-1" => Region::CaCentral1,
+                                                    "cn-north-1" => Region::CnNorth1,
+                                                    "cn-northwest-1" => Region::CnNorthwest1,
+                                                    "eu-central-1" => Region::EuCentral1,
+                                                    "storj-eu1" => Region::Custom {
+                                                        name: String::from("StorjEu1"),
+                                                        endpoint: String::from(
+                                                            "https://gateway.storjshare.io",
+                                                        ),
+                                                    },
+                                                    "eu-west-1" => Region::EuWest1,
+                                                    "eu-west-2" => Region::EuWest2,
+                                                    "eu-west-3" => Region::EuWest3,
+                                                    "sa-east-1" => Region::SaEast1,
+                                                    "us-east-1" => Region::UsEast1,
+                                                    "us-east-2" => Region::UsEast2,
+                                                    "us-gov-west-1" => Region::UsGovWest1,
+                                                    "us-west-1" => Region::UsWest1,
+                                                    "us-west-2" => Region::UsWest2,
+                                                    region => {
+                                                        return Err(format!(
+                                                            "invalid destination region value '{}'.",
+                                                            region
+                                                        ));
+                                                    }
+                                                };
                                             }
                                         }
                                         "encryptions" => {}
