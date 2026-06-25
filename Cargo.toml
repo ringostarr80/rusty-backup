@@ -5,7 +5,7 @@ authors = ["Ringo Leese <webmaster@ringoleese.de>"]
 edition = "2021"
 
 [dependencies]
-bytes = "1.11"
+bytes = "1.12"
 bzip2 = "0.6"
 chrono = "0.4"
 clap = { version = "4.6", features = ["cargo"] }
@@ -14,7 +14,7 @@ futures = "0.3"
 futures-fs = "0.0.5"
 lazy_static = "1.5"
 log = "0.4"
-log4rs = "1.3"
+log4rs = "1.4"
 nix = { version = "0.31", features = ["user"] }
 parse_duration0 = "3.0"
 regex = "1.12"

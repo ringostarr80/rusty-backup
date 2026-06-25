@@ -8,6 +8,10 @@
 	<destinations>
 		<destination kind="directory" id="local_directory" path="/home/user/backup"/>
 		<destination kind="s3" id="s3" bucket="<bucket-name>" region="eu-central-1"/>
+		<!-- S3-compatible providers (Infomaniak, MinIO, ...): set a custom endpoint.
+		     Credentials are read from AWS_ACCESS_KEY_ID / AWS_SECRET_ACCESS_KEY.
+		     `region` is optional and used as the signing-region (default: us-east-1). -->
+		<destination kind="s3" id="infomaniak" bucket="<bucket-name>" endpoint="https://s3.swiss-backup02.infomaniak.com" region="us-east-1"/>
 	</destinations>
 	<encryptions>
 		<encryption id="default" program="openssl">
